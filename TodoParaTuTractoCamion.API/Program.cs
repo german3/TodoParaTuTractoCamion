@@ -63,9 +63,22 @@ using (var scope = app.Services.CreateScope())
             {
                 var jsonOptions = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
                 var jsonText = File.ReadAllText(jsonPath);
-                var productos = System.Text.Json.JsonSerializer.Deserialize<List<TodoParaTuTractoCamion.Domain.Entities.Producto>>(jsonText, jsonOptions);
-                if (productos != null && productos.Any())
+                
+                // Usar un DTO para deserializar porque el JSON es plano pero el Dominio usa Value Objects
+                var dtos = System.Text.Json.JsonSerializer.Deserialize<List<ProductoJsonDto>>(jsonText, jsonOptions);
+                
+                if (dtos != null && dtos.Any())
                 {
+                    var productos = dtos.Select(d => new TodoParaTuTractoCamion.Domain.Entities.Producto(
+                        d.Id,
+                        d.Nombre,
+                        new TodoParaTuTractoCamion.Domain.ValueObjects.Precio(d.Precio),
+                        new TodoParaTuTractoCamion.Domain.ValueObjects.Stock(d.Stock),
+                        d.Imagen1Url,
+                        d.Imagen2Url,
+                        d.Imagen3Url
+                    )).ToList();
+
                     context.Productos.AddRange(productos);
                     context.SaveChanges();
                     Log.Information($"Seeded {productos.Count} products from JSON.");
@@ -95,3 +108,14 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.Run();
+
+// DTO para carga de datos inicial
+public record ProductoJsonDto(
+    Guid Id,
+    string Nombre,
+    decimal Precio,
+    int Stock,
+    string Imagen1Url,
+    string Imagen2Url,
+    string Imagen3Url
+);
