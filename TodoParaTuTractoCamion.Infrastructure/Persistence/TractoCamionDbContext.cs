@@ -27,7 +27,10 @@ namespace TodoParaTuTractoCamion.Infrastructure.Persistence
 
                 entity.OwnsOne(p => p.Precio, p =>
                 {
-                    p.Property(x => x.Value).HasColumnName("precio").HasPrecision(18, 2);
+                    p.Property(x => x.Value)
+                     .HasColumnName("precio")
+                     .HasPrecision(18, 2)
+                     .HasConversion<double>();
                 });
 
                 entity.OwnsOne(p => p.Stock, p =>
