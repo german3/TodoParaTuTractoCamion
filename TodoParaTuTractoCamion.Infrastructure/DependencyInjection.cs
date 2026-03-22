@@ -12,25 +12,36 @@ namespace TodoParaTuTractoCamion.Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            // Intentar obtener de DefaultConnection o directamente de DATABASE_URL (común en Railway)
+            // Obtener de DefaultConnection o DATABASE_URL
             var connectionString = configuration.GetConnectionString("DefaultConnection") 
                                    ?? configuration["DATABASE_URL"];
 
-            if (string.IsNullOrEmpty(connectionString))
+            if (string.IsNullOrWhiteSpace(connectionString))
             {
-                // Fallback final para evitar errores de nulo si no hay nada configurado
                 connectionString = "Host=localhost;Database=TractoCamionDB;Username=postgres;Password=postgres;";
             }
 
-            // Si la cadena viene en formato postgres:// (típico de Railway/Heroku)
+            // Limpiar posibles espacios o comillas accidentales
+            connectionString = connectionString.Trim().Trim('"').Trim('\'');
+
+            Console.WriteLine($"[DEBUG] DB Connection starts with: {(connectionString.Length > 10 ? connectionString.Substring(0, 10) : connectionString)}...");
+
+            // Soporte para formato postgres:// (Railway)
             if (connectionString.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase))
             {
-                var uri = new Uri(connectionString);
-                var userInfo = uri.UserInfo.Split(':');
-                var user = userInfo[0];
-                var password = userInfo.Length > 1 ? userInfo[1] : "";
-                
-                connectionString = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={user};Password={password};SSL Mode=Require;Trust Server Certificate=true;";
+                try 
+                {
+                    var uri = new Uri(connectionString);
+                    var userInfo = uri.UserInfo.Split(':');
+                    var user = userInfo[0];
+                    var password = userInfo.Length > 1 ? userInfo[1] : "";
+                    
+                    connectionString = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={user};Password={password};SSL Mode=Require;Trust Server Certificate=true;";
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"[ERROR] Failed to parse postgres:// URL: {ex.Message}");
+                }
             }
 
             services.AddDbContext<TractoCamionDbContext>(options =>
