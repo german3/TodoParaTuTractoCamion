@@ -2,9 +2,9 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
-using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using TodoParaTuTractoCamion.Infrastructure.Persistence;
 
 #nullable disable
@@ -12,40 +12,40 @@ using TodoParaTuTractoCamion.Infrastructure.Persistence;
 namespace TodoParaTuTractoCamion.Infrastructure.Migrations
 {
     [DbContext(typeof(TractoCamionDbContext))]
-    [Migration("20260302033508_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20260322061459_InitialPostgres")]
+    partial class InitialPostgres
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "10.0.3")
-                .HasAnnotation("Relational:MaxIdentifierLength", 128);
+                .HasAnnotation("ProductVersion", "10.0.4")
+                .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
-            SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+            NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("TodoParaTuTractoCamion.Domain.Entities.Producto", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Imagen1Url")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Imagen2Url")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Imagen3Url")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.Property<string>("Nombre")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("text");
 
                     b.HasKey("Id");
 
@@ -57,11 +57,11 @@ namespace TodoParaTuTractoCamion.Infrastructure.Migrations
                     b.OwnsOne("TodoParaTuTractoCamion.Domain.ValueObjects.Precio", "Precio", b1 =>
                         {
                             b1.Property<Guid>("ProductoId")
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uuid");
 
                             b1.Property<decimal>("Value")
                                 .HasPrecision(18, 2)
-                                .HasColumnType("decimal(18,2)")
+                                .HasColumnType("numeric(18,2)")
                                 .HasColumnName("Precio");
 
                             b1.HasKey("ProductoId");
@@ -75,10 +75,10 @@ namespace TodoParaTuTractoCamion.Infrastructure.Migrations
                     b.OwnsOne("TodoParaTuTractoCamion.Domain.ValueObjects.Stock", "Stock", b1 =>
                         {
                             b1.Property<Guid>("ProductoId")
-                                .HasColumnType("uniqueidentifier");
+                                .HasColumnType("uuid");
 
                             b1.Property<int>("Value")
-                                .HasColumnType("int")
+                                .HasColumnType("integer")
                                 .HasColumnName("Stock");
 
                             b1.HasKey("ProductoId");

@@ -58,13 +58,33 @@ using (var scope = app.Services.CreateScope())
 
         if (!context.Productos.Any())
         {
-            var excelService = services.GetRequiredService<IExcelReaderService>();
-            var filePath = Path.Combine(Directory.GetCurrentDirectory(), "..", "productos.xlsx");
-            var productos = excelService.ReadProductosFromExcel(filePath);
-            if (productos.Any())
+            var jsonPath = Path.Combine(Directory.GetCurrentDirectory(), "productos_backup.json");
+            if (File.Exists(jsonPath))
             {
-                context.Productos.AddRange(productos);
-                context.SaveChanges();
+                var jsonOptions = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+                var jsonText = File.ReadAllText(jsonPath);
+                var productos = System.Text.Json.JsonSerializer.Deserialize<List<TodoParaTuTractoCamion.Domain.Entities.Producto>>(jsonText, jsonOptions);
+                if (productos != null && productos.Any())
+                {
+                    context.Productos.AddRange(productos);
+                    context.SaveChanges();
+                    Log.Information($"Seeded {productos.Count} products from JSON.");
+                }
+            }
+            else
+            {
+                var excelService = services.GetRequiredService<IExcelReaderService>();
+                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "..", "productos.xlsx");
+                if (File.Exists(filePath))
+                {
+                    var productos = excelService.ReadProductosFromExcel(filePath);
+                    if (productos.Any())
+                    {
+                        context.Productos.AddRange(productos);
+                        context.SaveChanges();
+                        Log.Information($"Seeded {productos.Count()} products from Excel.");
+                    }
+                }
             }
         }
     }

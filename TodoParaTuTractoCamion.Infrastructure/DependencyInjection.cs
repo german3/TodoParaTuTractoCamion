@@ -13,7 +13,7 @@ namespace TodoParaTuTractoCamion.Infrastructure
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddDbContext<TractoCamionDbContext>(options =>
-                options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
+                options.UseNpgsql(configuration.GetConnectionString("DefaultConnection")));
 
             services.AddScoped<IProductoRepository, ProductoRepository>();
             services.AddScoped<IUnitOfWork, UnitOfWork>();
