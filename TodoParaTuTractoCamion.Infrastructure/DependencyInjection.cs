@@ -12,9 +12,9 @@ namespace TodoParaTuTractoCamion.Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            // Obtener de DefaultConnection o DATABASE_URL
-            var connectionString = configuration.GetConnectionString("DefaultConnection") 
-                                   ?? configuration["DATABASE_URL"];
+            // Prioridad a DATABASE_URL para entornos de nube (Render/Supabase)
+            var connectionString = configuration["DATABASE_URL"] 
+                                   ?? configuration.GetConnectionString("DefaultConnection");
 
             if (string.IsNullOrWhiteSpace(connectionString))
             {
