@@ -58,17 +58,24 @@ using (var scope = app.Services.CreateScope())
 
         if (!context.Productos.Any())
         {
-            var jsonPath = Path.Combine(Directory.GetCurrentDirectory(), "productos_backup.json");
+            Log.Information("No products found in database. Starting seeding process...");
+            
+            var baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            var jsonPath = Path.Combine(baseDir, "productos_backup.json");
+            
+            Log.Information($"Searching for seed file at: {jsonPath}");
+
             if (File.Exists(jsonPath))
             {
+                Log.Information("Seed file found. Deserializing...");
                 var jsonOptions = new System.Text.Json.JsonSerializerOptions { PropertyNameCaseInsensitive = true };
                 var jsonText = File.ReadAllText(jsonPath);
                 
-                // Usar un DTO para deserializar porque el JSON es plano pero el Dominio usa Value Objects
                 var dtos = System.Text.Json.JsonSerializer.Deserialize<List<ProductoJsonDto>>(jsonText, jsonOptions);
                 
                 if (dtos != null && dtos.Any())
                 {
+                    Log.Information($"Mapped {dtos.Count} products from JSON. Saving to database...");
                     var productos = dtos.Select(d => new TodoParaTuTractoCamion.Domain.Entities.Producto(
                         d.Id,
                         d.Nombre,
@@ -81,13 +88,18 @@ using (var scope = app.Services.CreateScope())
 
                     context.Productos.AddRange(productos);
                     context.SaveChanges();
-                    Log.Information($"Seeded {productos.Count} products from JSON.");
+                    Log.Information($"Successfully seeded {productos.Count} products from JSON.");
+                }
+                else
+                {
+                    Log.Warning("Seed file was found but contained no products or failed to deserialize.");
                 }
             }
             else
             {
+                Log.Warning($"Seed file not found at {jsonPath}. Checking backup Excel path...");
                 var excelService = services.GetRequiredService<IExcelReaderService>();
-                var filePath = Path.Combine(Directory.GetCurrentDirectory(), "..", "productos.xlsx");
+                var filePath = Path.Combine(baseDir, "..", "productos.xlsx");
                 if (File.Exists(filePath))
                 {
                     var productos = excelService.ReadProductosFromExcel(filePath);
@@ -98,7 +110,15 @@ using (var scope = app.Services.CreateScope())
                         Log.Information($"Seeded {productos.Count()} products from Excel.");
                     }
                 }
+                else 
+                {
+                    Log.Warning($"Excel backup not found at {filePath}. Seeding skipped.");
+                }
             }
+        }
+        else 
+        {
+            Log.Information("Database already contains products. Seeding skipped.");
         }
     }
     catch (Exception ex)
