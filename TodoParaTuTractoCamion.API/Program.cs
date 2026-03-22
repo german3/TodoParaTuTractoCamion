@@ -6,6 +6,8 @@ using TodoParaTuTractoCamion.Infrastructure.Services;
 using TodoParaTuTractoCamion.API.Middleware;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
+using System.IO;
+using System.Collections.Generic;
 
 var builder = WebApplication.CreateBuilder(args);
 
