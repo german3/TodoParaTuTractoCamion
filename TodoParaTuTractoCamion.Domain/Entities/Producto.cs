@@ -9,13 +9,13 @@ namespace TodoParaTuTractoCamion.Domain.Entities
         public string Nombre { get; private set; }
         public Precio Precio { get; private set; }
         public Stock Stock { get; private set; }
-        public string Imagen1Url { get; private set; }
-        public string Imagen2Url { get; private set; }
-        public string Imagen3Url { get; private set; }
+        public string? Imagen1Url { get; private set; }
+        public string? Imagen2Url { get; private set; }
+        public string? Imagen3Url { get; private set; }
 
         private Producto() { } // EF Core
 
-        public Producto(Guid id, string nombre, Precio precio, Stock stock, string img1, string img2, string img3)
+        public Producto(Guid id, string nombre, Precio precio, Stock stock, string? img1, string? img2, string? img3)
         {
             if (string.IsNullOrWhiteSpace(nombre))
                 throw new DomainException("El nombre del producto no puede estar vacío.");
