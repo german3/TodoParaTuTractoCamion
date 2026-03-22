@@ -1,0 +1,231 @@
+@page "/"
+@inject HttpClient Http
+@inject Services.CartService Cart
+@using TodoParaTuTractoCamion.Application.DTOs
+@using TodoParaTuTractoCamion.BlazorWasm.Shared
+
+<PageTitle>Todo Para Tu TractoCamión - Catálogo</PageTitle>
+
+<Toast @ref="_toast" />
+
+<!-- ===== HERO SECTION ===== -->
+<section class="hero-section">
+    <div class="hero-content">
+        <h1 class="hero-title">
+            TODO PARA TU <span class="hero-accent">TRACTOCAMIÓN</span>
+        </h1>
+        <p class="hero-desc">
+            Partes y accesorios de calidad para tu tractocamión. Loderas, espejos,
+            luces y más para las mejores marcas: International, Kenworth, Freightliner.
+        </p>
+
+        <!-- Feature badges -->
+        <div class="feature-badges">
+            <div class="feature-badge">
+                <div class="badge-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#FF6B00" viewBox="0 0 24 24">
+                        <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+                    </svg>
+                </div>
+                <div>
+                    <span class="badge-title">Calidad</span>
+                    <span class="badge-sub">Garantizada</span>
+                </div>
+            </div>
+            <div class="feature-badge">
+                <div class="badge-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#FF6B00" viewBox="0 0 24 24">
+                        <path d="M20 8h-3V4H3c-1.1 0-2 .9-2 2v11h2c0 1.66 1.34 3 3 3s3-1.34 3-3h6c0 1.66 1.34 3 3 3s3-1.34 3-3h2v-5l-3-4zm-.5 1.5l1.96 2.5H17V9.5h2.5zM6 18c-.55 0-1-.45-1-1s.45-1 1-1 1 .45 1 1-.45 1-1 1zm13.5-1c0 .55-.45 1-1 1s-1-.45-1-1 .45-1 1-1 1 .45 1 1z"/>
+                    </svg>
+                </div>
+                <div>
+                    <span class="badge-title">Envíos</span>
+                    <span class="badge-sub">Nacional</span>
+                </div>
+            </div>
+            <div class="feature-badge">
+                <div class="badge-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#FF6B00" viewBox="0 0 24 24">
+                        <path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"/>
+                    </svg>
+                </div>
+                <div>
+                    <span class="badge-title">Entrega</span>
+                    <span class="badge-sub">Rápida</span>
+                </div>
+            </div>
+            <div class="feature-badge">
+                <div class="badge-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="#FF6B00" viewBox="0 0 24 24">
+                        <path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/>
+                    </svg>
+                </div>
+                <div>
+                    <span class="badge-title">Asesoría</span>
+                    <span class="badge-sub">Técnica</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="hero-overlay"></div>
+</section>
+
+<!-- ===== CATALOG SECTION ===== -->
+<section class="catalog-section">
+    <div class="catalog-inner">
+        <!-- Catalog header -->
+        <div class="catalog-top">
+            <div>
+                <h2 class="catalog-title">CATÁLOGO DE PRODUCTOS</h2>
+                <p class="catalog-sub">
+                    @if (_productos == null)
+                    {
+                        <span>Cargando...</span>
+                    }
+                    else
+                    {
+                        <span>@_productos.Count productos disponibles</span>
+                    }
+                </p>
+            </div>
+            <div class="search-bar-wrapper">
+                <div class="search-bar">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#888" viewBox="0 0 24 24">
+                        <path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                    </svg>
+                    <input type="text"
+                           placeholder="Buscar productos..."
+                           @bind="_searchText"
+                           @bind:event="oninput" />
+                </div>
+                <button class="btn-refresh" @onclick="ResetSearch" title="Limpiar búsqueda">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Products grid -->
+        @if (_productos == null)
+        {
+            <div class="loading-container">
+                <div class="spinner"></div>
+                <p class="loading-text">Cargando productos...</p>
+            </div>
+        }
+        else if (!ProductosFiltrados.Any())
+        {
+            <div class="empty-state">
+                <span>😕</span>
+                <p>@(_searchText.Length > 0 ? "No se encontraron productos con ese término." : "No hay productos disponibles.")</p>
+            </div>
+        }
+        else
+        {
+            <div class="products-grid">
+                @foreach (var producto in ProductosFiltrados)
+                {
+                    var inCart = Cart.GetItems().Any(i => i.Producto.Id == producto.Id);
+
+                    <div class="product-card">
+                        <!-- Image -->
+                        <a href="/producto/@producto.Id" class="product-card-link">
+                            <div class="product-image-wrapper">
+                                @if (!string.IsNullOrEmpty(producto.Imagen1Url))
+                                {
+                                    <img src="@producto.Imagen1Url" class="product-main-image" alt="@producto.Nombre" />
+                                }
+                                else
+                                {
+                                    <div class="product-no-image">📦</div>
+                                }
+
+                                @if (producto.Stock <= 0)
+                                {
+                                    <div class="out-of-stock-overlay">Sin Stock</div>
+                                }
+
+                                @if (inCart)
+                                {
+                                    <div class="in-cart-badge">✓ En carrito</div>
+                                }
+                            </div>
+                        </a>
+
+                        <!-- Info -->
+                        <div class="product-info">
+                            <a href="/producto/@producto.Id" class="product-name-link">
+                                <h5 class="product-name" title="@producto.Nombre">@producto.Nombre</h5>
+                            </a>
+                            <div class="product-meta">
+                                <span class="product-price">@producto.Precio.ToString("C")</span>
+                                <span class="product-stock @(producto.Stock > 0 ? "stock-ok" : "stock-empty")">
+                                    Stock: @producto.Stock
+                                </span>
+                            </div>
+                            <button class="btn-add-cart @(producto.Stock <= 0 ? "btn-disabled" : "") @(inCart ? "btn-already-added" : "")"
+                                    @onclick="() => AddToCart(producto)"
+                                    disabled="@(producto.Stock <= 0)">
+                                @if (inCart)
+                                {
+                                    <span>🛒 Agregar más</span>
+                                }
+                                else if (producto.Stock <= 0)
+                                {
+                                    <span>❌ Sin Stock</span>
+                                }
+                                else
+                                {
+                                    <span>🛒 Agregar al carrito</span>
+                                }
+                            </button>
+                        </div>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</section>
+
+@code {
+    private List<ProductoDto>? _productos;
+    private Dictionary<Guid, string> _activeImages = new();
+    private Toast? _toast;
+    private string _searchText = "";
+
+    private IEnumerable<ProductoDto> ProductosFiltrados =>
+        _productos == null ? Enumerable.Empty<ProductoDto>() :
+        string.IsNullOrWhiteSpace(_searchText) ? _productos :
+        _productos.Where(p => p.Nombre.Contains(_searchText, StringComparison.OrdinalIgnoreCase));
+
+    protected override async Task OnInitializedAsync()
+    {
+        Cart.OnChange += StateHasChanged;
+        try
+        {
+            _productos = await Http.GetFromJsonAsync<List<ProductoDto>>("api/productos");
+            if (_productos != null)
+                foreach (var p in _productos)
+                    _activeImages[p.Id] = p.Imagen1Url ?? "";
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine(ex.Message);
+            _productos = new List<ProductoDto>();
+        }
+    }
+
+    private void ResetSearch() => _searchText = "";
+
+    private async Task AddToCart(ProductoDto producto)
+    {
+        var error = await Cart.AddToCart(producto, 1);
+        if (error != null)
+            _toast?.Show(error, Toast.ToastType.Error);
+        else
+            _toast?.Show($"✓ {producto.Nombre} agregado al carrito");
+    }
+
+    public void Dispose() => Cart.OnChange -= StateHasChanged;
+}

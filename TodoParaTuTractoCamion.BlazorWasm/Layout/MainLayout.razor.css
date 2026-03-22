@@ -1,0 +1,156 @@
+/* === MAIN LAYOUT === */
+.app-shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    background-color: #0d0d0d;
+}
+
+/* === TOP NAVBAR === */
+.top-navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    background-color: #0d0d0d;
+    border-bottom: 1px solid #2a2a2a;
+}
+
+.navbar-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    height: 64px;
+    gap: 2rem;
+}
+
+/* === BRAND === */
+.nav-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    flex-shrink: 0;
+}
+
+.nav-logo-icon {
+    background: #FF6B00;
+    border-radius: 6px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.nav-logo-icon svg {
+    fill: white !important;
+}
+
+.nav-brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1;
+}
+
+.nav-brand-top {
+    font-size: 0.72rem;
+    font-weight: 700;
+    color: white;
+    letter-spacing: 0.05em;
+}
+
+.nav-brand-bottom {
+    font-size: 0.95rem;
+    font-weight: 900;
+    color: #FF6B00;
+    letter-spacing: 0.05em;
+}
+
+/* === NAV LINKS === */
+.nav-links {
+    display: flex;
+    gap: 2.5rem;
+}
+
+.nav-link-item {
+    color: #cccccc;
+    text-decoration: none;
+    font-size: 0.85rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    transition: color 0.2s;
+}
+
+.nav-link-item:hover {
+    color: white;
+}
+
+/* === RIGHT SECTION === */
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    flex-shrink: 0;
+}
+
+.nav-phone {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #FF6B00;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-decoration: none;
+    transition: opacity 0.2s;
+}
+
+.nav-phone:hover {
+    opacity: 0.85;
+    color: #FF6B00;
+}
+
+.nav-cart-btn {
+    position: relative;
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 8px;
+    width: 44px;
+    height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.nav-cart-btn:hover {
+    background: #2a2a2a;
+    border-color: #FF6B00;
+}
+
+.nav-cart-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: #FF6B00;
+    color: white;
+    font-size: 0.7rem;
+    font-weight: 800;
+    min-width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 3px;
+}
+
+/* === MAIN CONTENT === */
+.app-main {
+    flex: 1;
+    background-color: #0d0d0d;
+}

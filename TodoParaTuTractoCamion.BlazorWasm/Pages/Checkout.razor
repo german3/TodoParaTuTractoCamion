@@ -1,0 +1,138 @@
+@page "/checkout"
+@inject Services.CartService Cart
+@inject NavigationManager Nav
+@using TodoParaTuTractoCamion.BlazorWasm.Shared
+
+<PageTitle>Confirmar Pago - TractoCamion</PageTitle>
+
+<Toast @ref="_toast" />
+
+<div class="checkout-page">
+
+    @if (_paid)
+    {
+        <!-- SUCCESS STATE -->
+        <div class="checkout-success">
+            <div class="success-icon">✓</div>
+            <h2>¡Compra realizada con éxito!</h2>
+            <p>Tu pedido ha sido confirmado y se procesará en breve.</p>
+            <p class="success-sub">Gracias por comprar en <strong>Todo Para Tu TractoCamion</strong></p>
+            <button class="btn-back-catalog" @onclick='() => Nav.NavigateTo("/")'>🏠 Volver al Catálogo</button>
+        </div>
+    }
+    else
+    {
+        <div class="checkout-header">
+            <h1>💳 Confirmar Pago</h1>
+            <button class="btn btn-back" @onclick='() => Nav.NavigateTo("/carrito")'>← Volver al carrito</button>
+        </div>
+
+        @if (!Cart.GetItems().Any())
+        {
+            <div class="cart-empty">
+                <div class="cart-empty-icon">🛒</div>
+                <h3>No hay productos para pagar</h3>
+                <button class="btn-go-catalog" @onclick='() => Nav.NavigateTo("/")'>Ver Catálogo</button>
+            </div>
+        }
+        else
+        {
+            <div class="checkout-content">
+                <!-- Order Summary -->
+                <div class="checkout-order-summary">
+                    <h3>📋 Resumen del Pedido</h3>
+                    <div class="checkout-items">
+                        @foreach (var item in Cart.GetItems())
+                        {
+                            <div class="checkout-item">
+                                @if (!string.IsNullOrEmpty(item.Producto.Imagen1Url))
+                                {
+                                    <img src="@item.Producto.Imagen1Url" class="checkout-item-img" alt="@item.Producto.Nombre" />
+                                }
+                                <div class="checkout-item-detail">
+                                    <span class="checkout-item-name">@item.Producto.Nombre</span>
+                                    <span class="checkout-item-qty">Cantidad: @item.Cantidad</span>
+                                </div>
+                                <span class="checkout-item-price">@((item.Producto.Precio * item.Cantidad).ToString("C"))</span>
+                            </div>
+                        }
+                    </div>
+
+                    <div class="checkout-total-section">
+                        <div class="checkout-total-row">
+                            <span>Subtotal</span>
+                            <span>@Cart.GetTotal().ToString("C")</span>
+                        </div>
+                        <div class="checkout-total-row">
+                            <span>Envío</span>
+                            <span class="text-success">Gratis</span>
+                        </div>
+                        <div class="checkout-divider"></div>
+                        <div class="checkout-total-row checkout-grand-total">
+                            <span>Total a Pagar</span>
+                            <span>@Cart.GetTotal().ToString("C")</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Payment Panel -->
+                <div class="checkout-payment-panel">
+                    <h3>💳 Método de Pago</h3>
+                    <div class="payment-method-selector">
+                        <label class="payment-option @(_paymentMethod == "card" ? "selected" : "")" @onclick='() => _paymentMethod = "card"'>
+                            <span>💳 Tarjeta de Crédito/Débito</span>
+                        </label>
+                        <label class="payment-option @(_paymentMethod == "transfer" ? "selected" : "")" @onclick='() => _paymentMethod = "transfer"'>
+                            <span>🏦 Transferencia Bancaria</span>
+                        </label>
+                        <label class="payment-option @(_paymentMethod == "cash" ? "selected" : "")" @onclick='() => _paymentMethod = "cash"'>
+                            <span>💵 Pago en Efectivo</span>
+                        </label>
+                    </div>
+
+                    <div class="checkout-confirm-section">
+                        <button class="btn-pay @(_isProcessing ? "btn-processing" : "")"
+                                @onclick="ProcessPurchase"
+                                disabled="@_isProcessing">
+                            @if (_isProcessing)
+                            {
+                                <span>⏳ Procesando pago...</span>
+                            }
+                            else
+                            {
+                                <span>✅ Confirmar y Pagar @Cart.GetTotal().ToString("C")</span>
+                            }
+                        </button>
+                    </div>
+                </div>
+            </div>
+        }
+    }
+</div>
+
+@code {
+    private bool _isProcessing;
+    private bool _paid;
+    private string _paymentMethod = "card";
+    private Toast? _toast;
+
+    private async Task ProcessPurchase()
+    {
+        _isProcessing = true;
+        StateHasChanged();
+
+        var success = await Cart.ConfirmPurchase();
+
+        if (success)
+        {
+            _paid = true;
+        }
+        else
+        {
+            _toast?.Show("⚠️ Error al procesar el pago. Verifica el stock disponible.", Toast.ToastType.Error);
+        }
+
+        _isProcessing = false;
+        StateHasChanged();
+    }
+}

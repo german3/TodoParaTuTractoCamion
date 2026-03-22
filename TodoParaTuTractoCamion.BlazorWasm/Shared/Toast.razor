@@ -1,0 +1,75 @@
+@using System.Timers
+
+<!-- Toast Notification -->
+@if (_show)
+{
+    <div class="toast-notification @(_type == ToastType.Success ? "toast-success" : _type == ToastType.Error ? "toast-error" : "toast-info") @(_animOut ? "toast-out" : "toast-in")">
+        <div class="toast-icon">
+            @if (_type == ToastType.Success)
+            {
+                <span>✓</span>
+            }
+            else if (_type == ToastType.Error)
+            {
+                <span>✕</span>
+            }
+            else
+            {
+                <span>ℹ</span>
+            }
+        </div>
+        <div class="toast-message">@_message</div>
+        <button class="toast-close" @onclick="Hide">×</button>
+    </div>
+}
+
+@code {
+    private bool _show;
+    private bool _animOut;
+    private string _message = "";
+    private ToastType _type;
+    private Timer? _hideTimer;
+    private Timer? _outTimer;
+
+    public void Show(string message, ToastType type = ToastType.Success)
+    {
+        _message = message;
+        _type = type;
+        _animOut = false;
+        _show = true;
+        InvokeAsync(StateHasChanged);
+
+        _hideTimer?.Dispose();
+        _outTimer?.Dispose();
+
+        // After 2.5s, start fade out animation
+        _outTimer = new Timer(2500);
+        _outTimer.Elapsed += (s, e) =>
+        {
+            _animOut = true;
+            InvokeAsync(StateHasChanged);
+        };
+        _outTimer.AutoReset = false;
+        _outTimer.Enabled = true;
+
+        // After 3s, hide completely
+        _hideTimer = new Timer(3100);
+        _hideTimer.Elapsed += (s, e) =>
+        {
+            _show = false;
+            InvokeAsync(StateHasChanged);
+        };
+        _hideTimer.AutoReset = false;
+        _hideTimer.Enabled = true;
+    }
+
+    private void Hide()
+    {
+        _show = false;
+        _hideTimer?.Dispose();
+        _outTimer?.Dispose();
+        StateHasChanged();
+    }
+
+    public enum ToastType { Success, Error, Info }
+}

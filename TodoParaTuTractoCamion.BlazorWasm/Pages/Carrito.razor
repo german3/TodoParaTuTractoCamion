@@ -1,0 +1,101 @@
+@page "/carrito"
+@inject Services.CartService Cart
+@inject NavigationManager Nav
+@using TodoParaTuTractoCamion.BlazorWasm.Shared
+
+<PageTitle>Mi Carrito - TractoCamion</PageTitle>
+
+<Toast @ref="_toast" />
+
+<div class="cart-page">
+    <div class="cart-header">
+        <h1>🛒 Mi Carrito</h1>
+        <button class="btn btn-primary" @onclick='() => Nav.NavigateTo("/")'>← Seguir comprando</button>
+    </div>
+
+    @if (!Cart.GetItems().Any())
+    {
+        <div class="cart-empty">
+            <div class="cart-empty-icon">🛒</div>
+            <h3>Tu carrito está vacío</h3>
+            <p>Agrega productos desde el catálogo</p>
+            <button class="btn-go-catalog" @onclick='() => Nav.NavigateTo("/")'>Ver Catálogo</button>
+        </div>
+    }
+    else
+    {
+        <div class="cart-content">
+            <div class="cart-items">
+                @foreach (var item in Cart.GetItems())
+                {
+                    <div class="cart-item">
+                        @if (!string.IsNullOrEmpty(item.Producto.Imagen1Url))
+                        {
+                            <img src="@item.Producto.Imagen1Url" class="cart-item-image" alt="@item.Producto.Nombre" />
+                        }
+                        else
+                        {
+                            <div class="cart-item-no-img">📦</div>
+                        }
+                        <div class="cart-item-info">
+                            <h5>@item.Producto.Nombre</h5>
+                            <p class="cart-item-price">@item.Producto.Precio.ToString("C") c/u</p>
+                        </div>
+                        <div class="cart-item-qty">
+                            <button class="qty-btn" @onclick="() => ChangeQty(item.Producto, -1)">−</button>
+                            <span class="qty-val">@item.Cantidad</span>
+                            <button class="qty-btn" @onclick="() => ChangeQty(item.Producto, 1)">+</button>
+                        </div>
+                        <div class="cart-item-subtotal">
+                            @((item.Producto.Precio * item.Cantidad).ToString("C"))
+                        </div>
+                        <button class="cart-item-remove" @onclick="() => Cart.RemoveFromCart(item.Producto.Id)" title="Eliminar">✕</button>
+                    </div>
+                }
+            </div>
+
+            <div class="cart-summary">
+                <h3>Resumen</h3>
+                <div class="summary-row">
+                    <span>Productos (@Cart.GetItems().Sum(i => i.Cantidad))</span>
+                    <span>@Cart.GetTotal().ToString("C")</span>
+                </div>
+                <div class="summary-divider"></div>
+                <div class="summary-total">
+                    <span>Total</span>
+                    <span>@Cart.GetTotal().ToString("C")</span>
+                </div>
+                <button class="btn-checkout" @onclick='() => Nav.NavigateTo("/checkout")'>
+                    Proceder al Pago →
+                </button>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    private Toast? _toast;
+
+    protected override void OnInitialized() => Cart.OnChange += StateHasChanged;
+    public void Dispose() => Cart.OnChange -= StateHasChanged;
+
+    private async Task ChangeQty(Application.DTOs.ProductoDto producto, int delta)
+    {
+        if (delta < 0)
+        {
+            var item = Cart.GetItems().FirstOrDefault(i => i.Producto.Id == producto.Id);
+            if (item != null && item.Cantidad <= 1)
+            {
+                Cart.RemoveFromCart(producto.Id);
+                return;
+            }
+            await Cart.AddToCart(producto, delta); // delta is negative, handled internally
+            Cart.AdjustQuantity(producto.Id, delta);
+        }
+        else
+        {
+            var error = await Cart.AddToCart(producto, delta);
+            if (error != null) _toast?.Show(error, Toast.ToastType.Error);
+        }
+    }
+}

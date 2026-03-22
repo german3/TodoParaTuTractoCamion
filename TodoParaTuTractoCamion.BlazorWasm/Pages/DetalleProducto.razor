@@ -1,0 +1,146 @@
+@page "/producto/{Id:guid}"
+@inject HttpClient Http
+@inject Services.CartService Cart
+@using TodoParaTuTractoCamion.Application.DTOs
+@using TodoParaTuTractoCamion.BlazorWasm.Shared
+
+<PageTitle>Detalles del Producto</PageTitle>
+
+<Toast @ref="_toast" />
+
+<div class="container detail-page mt-5">
+    @if (_producto == null)
+    {
+        <div class="loading-container">
+            <div class="spinner"></div>
+            <p>Cargando detalles...</p>
+        </div>
+    }
+    else
+    {
+        <div class="row">
+            <!-- Image Gallery Column -->
+            <div class="col-md-6 mb-4">
+                <div class="detail-image-card">
+                    <div class="detail-main-image-wrapper">
+                        <img src="@_activeImageUrl" class="detail-main-image" alt="@_producto.Nombre" />
+                    </div>
+                    
+                    <div class="detail-thumbnails mt-3">
+                        @if (!string.IsNullOrEmpty(_producto.Imagen1Url))
+                        {
+                            <img src="@_producto.Imagen1Url" 
+                                 class="detail-thumb @(_activeImageUrl == _producto.Imagen1Url ? "active" : "")" 
+                                 @onmouseover="() => _activeImageUrl = _producto.Imagen1Url" />
+                        }
+                        @if (!string.IsNullOrEmpty(_producto.Imagen2Url))
+                        {
+                            <img src="@_producto.Imagen2Url" 
+                                 class="detail-thumb @(_activeImageUrl == _producto.Imagen2Url ? "active" : "")" 
+                                 @onmouseover="() => _activeImageUrl = _producto.Imagen2Url" />
+                        }
+                        @if (!string.IsNullOrEmpty(_producto.Imagen3Url))
+                        {
+                            <img src="@_producto.Imagen3Url" 
+                                 class="detail-thumb @(_activeImageUrl == _producto.Imagen3Url ? "active" : "")" 
+                                 @onmouseover="() => _activeImageUrl = _producto.Imagen3Url" />
+                        }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Info Column -->
+            <div class="col-md-6 mb-4">
+                <div class="detail-info-card">
+                    <a href="/" class="btn-back mb-3">← Atrás al Catálogo</a>
+                    <h1 class="detail-name">@_producto.Nombre</h1>
+                    <p class="detail-id text-muted">SKU: @_producto.Id</p>
+                    <hr />
+                    
+                    <div class="detail-price-box">
+                        <div class="detail-price-info">
+                            <span class="detail-price">@(_producto.Precio * _cantidad).ToString("C")</span>
+                            @if (_cantidad > 1)
+                            {
+                                <small class="text-muted d-block">(@_producto.Precio.ToString("C") c/u)</small>
+                            }
+                        </div>
+                        <div class="detail-stock-badge @(_producto.Stock > 0 ? "in-stock" : "out-of-stock")">
+                            @(_producto.Stock > 0 ? $"Disponible ({_producto.Stock} unidades)" : "Agotado")
+                        </div>
+                    </div>
+
+                    <div class="detail-qty-selector mt-4">
+                        <label class="form-label">Cantidad:</label>
+                        <div class="qty-input-group">
+                            <button class="qty-btn" @onclick="() => AdjustQty(-1)" disabled="@(_cantidad <= 1)">-</button>
+                            <input type="number" class="qty-num" @bind="_cantidad" @bind:event="oninput" min="1" max="@_producto.Stock" />
+                            <button class="qty-btn" @onclick="() => AdjustQty(1)" disabled="@(_cantidad >= _producto.Stock)">+</button>
+                        </div>
+                    </div>
+
+                    <div class="detail-actions mt-4">
+                        <button class="btn-buy-now" @onclick="AddToCart" disabled="@(_producto.Stock <= 0)">
+                            🛒 Agregar @_cantidad al Carrito
+                        </button>
+                    </div>
+
+                    <div class="detail-description mt-5">
+                        <h5>Descripción</h5>
+                        <p>Este producto de alta calidad es ideal para tu tractocamión. Fabricado con los mejores estándares para garantizar durabilidad y rendimiento óptimo.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter] public Guid Id { get; set; }
+    private ProductoDto? _producto;
+    private string _activeImageUrl = "";
+    private int _cantidad = 1;
+    private Toast? _toast;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _producto = await Http.GetFromJsonAsync<ProductoDto>($"api/productos/{Id}");
+            if (_producto != null)
+            {
+                _activeImageUrl = _producto.Imagen1Url ?? "";
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.Message);
+        }
+    }
+
+    private void AdjustQty(int delta)
+    {
+        if (_producto == null) return;
+        var newVal = _cantidad + delta;
+        if (newVal >= 1 && newVal <= _producto.Stock)
+        {
+            _cantidad = newVal;
+        }
+    }
+
+    private async Task AddToCart()
+    {
+        if (_producto == null) return;
+        
+        var error = await Cart.AddToCart(_producto, _cantidad);
+        if (error != null)
+        {
+            _toast?.Show(error, Toast.ToastType.Error);
+        }
+        else
+        {
+            _toast?.Show($"✓ {_cantidad} x {_producto.Nombre} agregados correctamente.");
+            _cantidad = 1; // Reset quantity after adding
+        }
+    }
+}

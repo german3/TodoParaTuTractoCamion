@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="TodoParaTuTractoCamion.API/TodoParaTuTractoCamion.API.csproj" />
+  <Project Path="TodoParaTuTractoCamion.Application/TodoParaTuTractoCamion.Application.csproj" />
+  <Project Path="TodoParaTuTractoCamion.BlazorWasm/TodoParaTuTractoCamion.BlazorWasm.csproj" />
+  <Project Path="TodoParaTuTractoCamion.Domain/TodoParaTuTractoCamion.Domain.csproj" />
+  <Project Path="TodoParaTuTractoCamion.Infrastructure/TodoParaTuTractoCamion.Infrastructure.csproj" />
+</Solution>
