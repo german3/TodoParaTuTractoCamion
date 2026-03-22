@@ -14,7 +14,11 @@ namespace TodoParaTuTractoCamion.Infrastructure.Persistence
             modelBuilder.Entity<Producto>(entity =>
             {
                 entity.ToTable("Producto");
-                entity.Property(e => e.Id).HasColumnName("id");
+                entity.Property(e => e.Id)
+                    .HasColumnName("id")
+                    .HasConversion(
+                        v => v.ToString(),
+                        v => Guid.Parse(v));
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Nombre).HasColumnName("nombre");
                 entity.Property(e => e.Imagen1Url).HasColumnName("imagen1Url"); // Con U mayúscula
