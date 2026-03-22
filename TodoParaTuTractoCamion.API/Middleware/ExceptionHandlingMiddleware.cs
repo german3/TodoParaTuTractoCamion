@@ -36,7 +36,13 @@ namespace TodoParaTuTractoCamion.API.Middleware
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
 
-            var result = JsonSerializer.Serialize(new { error = exception.Message });
+            var message = exception.Message;
+            if (exception.InnerException != null)
+            {
+                message += " | Inner: " + exception.InnerException.Message;
+            }
+
+            var result = JsonSerializer.Serialize(new { error = message });
             return context.Response.WriteAsync(result);
         }
     }

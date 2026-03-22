@@ -123,7 +123,9 @@ using (var scope = app.Services.CreateScope())
     }
     catch (Exception ex)
     {
-        Log.Error(ex, "An error occurred during migration or seeding.");
+        var message = ex.Message;
+        if (ex.InnerException != null) message += " | Inner: " + ex.InnerException.Message;
+        Log.Error(ex, $"An error occurred during migration or seeding: {message}");
     }
 }
 
