@@ -24,9 +24,7 @@ namespace TodoParaTuTractoCamion.Infrastructure
             // Limpiar posibles espacios o comillas accidentales
             connectionString = connectionString.Trim().Trim('"').Trim('\'');
 
-            Console.WriteLine($"[DEBUG] DB Connection starts with: {(connectionString.Length > 10 ? connectionString.Substring(0, 10) : connectionString)}...");
-
-            // Soporte para formato postgres:// o postgresql:// (Railway)
+            // Soporte para formato postgres:// o postgresql:// (Supabase/Railway)
             if (connectionString.Contains("://"))
             {
                 try 
@@ -35,13 +33,23 @@ namespace TodoParaTuTractoCamion.Infrastructure
                     var userInfo = uri.UserInfo.Split(':');
                     var user = userInfo[0];
                     var password = userInfo.Length > 1 ? userInfo[1] : "";
+                    var host = uri.Host;
+                    var port = uri.Port;
+                    var database = uri.AbsolutePath.TrimStart('/');
+
+                    // Conexión formateada para Npgsql con SSL para Supabase
+                    connectionString = $"Host={host};Port={port};Database={database};Username={user};Password={password};SSL Mode=Require;Trust Server Certificate=true;";
                     
-                    connectionString = $"Host={uri.Host};Port={uri.Port};Database={uri.AbsolutePath.TrimStart('/')};Username={user};Password={password};SSL Mode=Require;Trust Server Certificate=true;";
+                    Console.WriteLine($"[DEBUG] Parsed Connection: Host={host}, Port={port}, DB={database}, User={user}");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[ERROR] Failed to parse postgres:// URL: {ex.Message}");
+                    Console.WriteLine($"[ERROR] Failed to parse DATABASE_URL: {ex.Message}");
                 }
+            }
+            else 
+            {
+                Console.WriteLine("[DEBUG] Using direct connection string (no URI format detected).");
             }
 
             services.AddDbContext<TractoCamionDbContext>(options =>
