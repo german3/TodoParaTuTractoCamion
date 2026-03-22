@@ -13,7 +13,7 @@ namespace TodoParaTuTractoCamion.Infrastructure.Persistence
         {
             modelBuilder.Entity<Producto>(entity =>
             {
-                entity.ToTable("Productos");
+                entity.ToTable("Producto");
                 entity.HasKey(e => e.Id);
 
                 entity.OwnsOne(p => p.Precio, p =>
