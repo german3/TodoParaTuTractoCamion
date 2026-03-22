@@ -34,17 +34,19 @@ namespace TodoParaTuTractoCamion.Infrastructure
                     var user = userInfo[0];
                     var password = userInfo.Length > 1 ? userInfo[1] : "";
                     var host = uri.Host;
-                    var port = uri.Port;
+                    var port = uri.Port > 0 ? uri.Port : 5432;
                     var database = uri.AbsolutePath.TrimStart('/');
 
                     // Conexión formateada para Npgsql con SSL para Supabase
-                    connectionString = $"Host={host};Port={port};Database={database};Username={user};Password={password};SSL Mode=Require;Trust Server Certificate=true;";
+                    // Se usa Direct Connection (Pooling=false) por si Render/Supabase dan problemas de pool
+                    connectionString = $"Server={host};Port={port};Database={database};User Id={user};Password={password};SSL Mode=Require;Trust Server Certificate=true;Pooling=false;";
                     
-                    Console.WriteLine($"[DEBUG] Parsed Connection: Host={host}, Port={port}, DB={database}, User={user}");
+                    Console.WriteLine($"[DEBUG] DB_URL_PARSED -> Host: {host}, Port: {port}, DB: {database}, User: {user}");
                 }
                 catch (Exception ex)
                 {
-                    Console.WriteLine($"[ERROR] Failed to parse DATABASE_URL: {ex.Message}");
+                    Console.WriteLine($"[ERROR] Error al parsear DATABASE_URL: {ex.Message}");
+                    Console.WriteLine($"[ERROR] URL intentada: {connectionString.Split('@').LastOrDefault()} (sin contraseña)");
                 }
             }
             else 
