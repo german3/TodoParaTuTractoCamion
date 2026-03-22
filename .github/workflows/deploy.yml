@@ -1,0 +1,38 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  deploy-to-github-pages:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '8.0.x' 
+
+      - name: Publish application
+        run: dotnet publish TodoParaTuTractoCamion.BlazorWasm/TodoParaTuTractoCamion.BlazorWasm.csproj -c Release -o release --nologo
+
+      # Cambiar la base-href para GitHub Pages
+      - name: Change base-href
+        run: sed -i 's/<base href="\/" \/>/<base href="\/TodoParaTuTractoCamion\/" \/>/g' release/wwwroot/index.html
+
+      # Copiar index.html a 404.html para soportar navegación de Blazor
+      - name: Copy index.html to 404.html
+        run: cp release/wwwroot/index.html release/wwwroot/404.html
+
+      # Crear archivo .nojekyll
+      - name: Add .nojekyll file
+        run: touch release/wwwroot/.nojekyll
+
+      - name: Commit wwwroot to GitHub Pages
+        uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          branch: gh-pages
+          folder: release/wwwroot
