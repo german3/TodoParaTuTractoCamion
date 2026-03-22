@@ -26,8 +26,8 @@ namespace TodoParaTuTractoCamion.Infrastructure
 
             Console.WriteLine($"[DEBUG] DB Connection starts with: {(connectionString.Length > 10 ? connectionString.Substring(0, 10) : connectionString)}...");
 
-            // Soporte para formato postgres:// (Railway)
-            if (connectionString.StartsWith("postgres://", StringComparison.OrdinalIgnoreCase))
+            // Soporte para formato postgres:// o postgresql:// (Railway)
+            if (connectionString.Contains("://"))
             {
                 try 
                 {
