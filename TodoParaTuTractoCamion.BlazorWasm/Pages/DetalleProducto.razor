@@ -29,21 +29,24 @@
                     <div class="detail-thumbnails mt-3">
                         @if (!string.IsNullOrEmpty(_producto.Imagen1Url))
                         {
-                            <img src="@_producto.Imagen1Url" 
-                                 class="detail-thumb @(_activeImageUrl == _producto.Imagen1Url ? "active" : "")" 
-                                 @onmouseover="() => _activeImageUrl = _producto.Imagen1Url" />
+                            var img1 = UrlHelpers.GetSafeImageUrl(_producto.Imagen1Url);
+                            <img src="@img1" 
+                                 class="detail-thumb @(_activeImageUrl == img1 ? "active" : "")" 
+                                 @onmouseover="() => _activeImageUrl = img1" />
                         }
                         @if (!string.IsNullOrEmpty(_producto.Imagen2Url))
                         {
-                            <img src="@_producto.Imagen2Url" 
-                                 class="detail-thumb @(_activeImageUrl == _producto.Imagen2Url ? "active" : "")" 
-                                 @onmouseover="() => _activeImageUrl = _producto.Imagen2Url" />
+                            var img2 = UrlHelpers.GetSafeImageUrl(_producto.Imagen2Url);
+                            <img src="@img2" 
+                                 class="detail-thumb @(_activeImageUrl == img2 ? "active" : "")" 
+                                 @onmouseover="() => _activeImageUrl = img2" />
                         }
                         @if (!string.IsNullOrEmpty(_producto.Imagen3Url))
                         {
-                            <img src="@_producto.Imagen3Url" 
-                                 class="detail-thumb @(_activeImageUrl == _producto.Imagen3Url ? "active" : "")" 
-                                 @onmouseover="() => _activeImageUrl = _producto.Imagen3Url" />
+                            var img3 = UrlHelpers.GetSafeImageUrl(_producto.Imagen3Url);
+                            <img src="@img3" 
+                                 class="detail-thumb @(_activeImageUrl == img3 ? "active" : "")" 
+                                 @onmouseover="() => _activeImageUrl = img3" />
                         }
                     </div>
                 </div>
@@ -109,7 +112,7 @@
             _producto = await Http.GetFromJsonAsync<ProductoDto>($"api/productos/{Id}");
             if (_producto != null)
             {
-                _activeImageUrl = _producto.Imagen1Url ?? "";
+                _activeImageUrl = UrlHelpers.GetSafeImageUrl(_producto.Imagen1Url);
             }
         }
         catch (Exception ex)

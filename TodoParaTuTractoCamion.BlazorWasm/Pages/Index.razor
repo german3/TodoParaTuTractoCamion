@@ -134,7 +134,7 @@
                             <div class="product-image-wrapper">
                                 @if (!string.IsNullOrEmpty(producto.Imagen1Url))
                                 {
-                                    <img src="@producto.Imagen1Url" class="product-main-image" alt="@producto.Nombre" />
+                                    <img src="@UrlHelpers.GetSafeImageUrl(producto.Imagen1Url)" class="product-main-image" alt="@producto.Nombre" />
                                 }
                                 else
                                 {
@@ -207,7 +207,7 @@
             _productos = await Http.GetFromJsonAsync<List<ProductoDto>>("api/productos");
             if (_productos != null)
                 foreach (var p in _productos)
-                    _activeImages[p.Id] = p.Imagen1Url ?? "";
+                    _activeImages[p.Id] = UrlHelpers.GetSafeImageUrl(p.Imagen1Url);
         }
         catch (Exception ex)
         {

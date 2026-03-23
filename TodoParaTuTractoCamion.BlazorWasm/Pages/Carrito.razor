@@ -31,7 +31,7 @@
                     <div class="cart-item">
                         @if (!string.IsNullOrEmpty(item.Producto.Imagen1Url))
                         {
-                            <img src="@item.Producto.Imagen1Url" class="cart-item-image" alt="@item.Producto.Nombre" />
+                            <img src="@UrlHelpers.GetSafeImageUrl(item.Producto.Imagen1Url)" class="cart-item-image" alt="@item.Producto.Nombre" />
                         }
                         else
                         {

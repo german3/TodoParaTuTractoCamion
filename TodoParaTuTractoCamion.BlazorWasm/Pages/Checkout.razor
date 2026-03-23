@@ -47,7 +47,7 @@
                             <div class="checkout-item">
                                 @if (!string.IsNullOrEmpty(item.Producto.Imagen1Url))
                                 {
-                                    <img src="@item.Producto.Imagen1Url" class="checkout-item-img" alt="@item.Producto.Nombre" />
+                                    <img src="@UrlHelpers.GetSafeImageUrl(item.Producto.Imagen1Url)" class="checkout-item-img" alt="@item.Producto.Nombre" />
                                 }
                                 <div class="checkout-item-detail">
                                     <span class="checkout-item-name">@item.Producto.Nombre</span>
