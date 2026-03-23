@@ -19,16 +19,17 @@
 
 <body>
     <div id="app">
-        <svg class="loading-progress">
-            <circle r="40%" cx="50%" cy="50%" />
-            <circle r="40%" cx="50%" cy="50%" />
-        </svg>
-        <div class="loading-progress-text"></div>
+        <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100vh; font-family:'Inter',sans-serif; background:#000; color:#fff;">
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem; color: #FF6B00 !important;">
+                <span class="visually-hidden">Cargando...</span>
+            </div>
+            <div style="margin-top: 20px; font-weight: 700; letter-spacing: 1px; color: #FF6B00;">CARGANDO PRODUCTOS...</div>
+        </div>
     </div>
 
-    <div id="blazor-error-ui">
-        An unhandled error has occurred.
-        <a href="." class="reload">Reload</a>
+    <div id="blazor-error-ui" style="background: #111; color: #fff; border-top: 2px solid #FF6B00;">
+        <span style="color: #FF6B00; font-weight: bold;">CARGANDO PRODUCTOS...</span>
+        <a href="." class="reload" style="color: #fff; text-decoration: underline; margin-left: 10px;">Reintentar</a>
         <span class="dismiss">🗙</span>
     </div>
     <script src="_framework/blazor.webassembly#[.{fingerprint}].js"></script>

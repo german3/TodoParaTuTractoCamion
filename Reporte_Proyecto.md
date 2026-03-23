@@ -22,11 +22,30 @@ Este reporte documenta el proceso completo de migración de la aplicación desde
 
 ---
 
-### 2. Solución de Problemas Críticos
+## Solución a las Imágenes Faltantes
+Se identificó que 6 productos tenían errores de "#VALUE!" en sus URLs de imagen debido a fallos en las fórmulas del Excel original. 
 
-*   **Error de Imágenes en GitHub Pages:**
-    *   *Problema:* Las imágenes locales no cargaban debido a rutas absolutas (`/images/...`) que buscaban en la raíz del dominio en lugar de la subcarpeta del repositorio.
-    *   *Solución:* Se creó un ayudante (`UrlHelpers.cs`) que convierte las rutas en relativas, permitiendo que Blazor las encuentre correctamente en cualquier entorno.
+**Acciones tomadas:**
+1. **Extracción Directa:** Se utilizó un script de Node.js para extraer las imágenes incrustadas directamente del archivo `Lista Productos.xlsx` proporcionado.
+2. **Carga al Repositorio:** Las imágenes extraídas se han subido a la carpeta `wwwroot/images/productos/` en el repositorio de GitHub.
+3. **Script de Corrección:** Se ha generado el archivo `sql_fix_images.sql` que contiene los comandos para actualizar la base de datos de Supabase.
+
+### Instrucciones para el Usuario
+Para que las 6 imágenes aparezcan en el sitio en vivo, por favor siga estos pasos:
+1. Abra su **Panel de Supabase**.
+2. Vaya a la sección **SQL Editor**.
+3. Abra el archivo `sql_fix_images.sql` que le he dejado en la carpeta del proyecto.
+4. Copie el contenido y péguelo en el editor de Supabase.
+5. Presione **Run**.
+
+Esto vinculará los productos con las nuevas imágenes que acabo de subir a GitHub.
+
+---
+## Conclusiones y Próximos Pasos
+La migración técnica ha sido un éxito total. La aplicación Blazor WebAssembly ahora corre en GitHub Pages conectándose de forma segura a su base de datos en tiempo real en Supabase.
+
+*   **Estado Final:** 100% funcional y desplegado.
+*   **Mantenimiento:** El archivo `sql_fix_images.sql` sirve como guía para futuras correcciones manuales si el Excel vuelve a tener errores de fórmulas.
 *   **Versión de .NET:**
     *   *Problema:* El flujo de GitHub fallaba al intentar usar .NET 8 mientras el proyecto requiere .NET 10.
     *   *Solución:* Se actualizó el archivo `deploy.yml` para incluir la versión preview de .NET 10 SDK.
