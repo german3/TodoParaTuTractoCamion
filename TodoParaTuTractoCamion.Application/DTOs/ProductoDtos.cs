@@ -11,6 +11,8 @@ namespace TodoParaTuTractoCamion.Application.DTOs
         public string Imagen1Url { get; set; }
         public string Imagen2Url { get; set; }
         public string Imagen3Url { get; set; }
+        public string Detalles { get; set; }
+        public string Categoria { get; set; }
     }
 
     public class CompraDto

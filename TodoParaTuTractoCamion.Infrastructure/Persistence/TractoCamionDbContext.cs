@@ -21,9 +21,11 @@ namespace TodoParaTuTractoCamion.Infrastructure.Persistence
                         v => Guid.Parse(v));
                 entity.HasKey(e => e.Id);
                 entity.Property(e => e.Nombre).HasColumnName("nombre");
-                entity.Property(e => e.Imagen1Url).HasColumnName("imagen1Url"); // Con U mayúscula
-                entity.Property(e => e.Imagen2Url).HasColumnName("imagen2Url"); // Con U mayúscula
-                entity.Property(e => e.Imagen3Url).HasColumnName("imagen3Url"); // Con U mayúscula
+                entity.Property(e => e.Imagen1Url).HasColumnName("imagen1Url");
+                entity.Property(e => e.Imagen2Url).HasColumnName("imagen2Url");
+                entity.Property(e => e.Imagen3Url).HasColumnName("imagen3Url");
+                entity.Property(e => e.Detalles).HasColumnName("detalles");
+                entity.Property(e => e.Categoria).HasColumnName("categoria");
 
                 entity.OwnsOne(p => p.Precio, p =>
                 {

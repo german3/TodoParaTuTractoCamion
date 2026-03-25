@@ -2,7 +2,7 @@ namespace TodoParaTuTractoCamion.BlazorWasm.Shared;
 
 public static class UrlHelpers
 {
-    public static string GetSafeImageUrl(string? url)
+    public static string GetSafeImageUrl(string? url, string? baseAddress = null)
     {
         if (string.IsNullOrEmpty(url)) return "";
         
@@ -10,8 +10,15 @@ public static class UrlHelpers
         if (url.StartsWith("http", System.StringComparison.OrdinalIgnoreCase)) 
             return url;
             
-        // Si empieza con /, quitamos la barra inicial para que sea relativa al <base href>
-        // Esto es crucial para GitHub Pages (/TodoParaTuTractoCamion/)
+        // Si tenemos un baseAddress y la url es relativa
+        if (!string.IsNullOrEmpty(baseAddress))
+        {
+            var cleanBase = baseAddress.TrimEnd('/');
+            var cleanUrl = url.StartsWith("/") ? url : "/" + url;
+            return $"{cleanBase}{cleanUrl}";
+        }
+
+        // Fallback: Si empieza con /, quitamos la barra inicial para que sea relativa al <base href>
         if (url.StartsWith("/")) 
             return url.Substring(1);
             

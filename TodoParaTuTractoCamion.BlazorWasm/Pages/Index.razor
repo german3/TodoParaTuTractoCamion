@@ -73,131 +73,393 @@
 <!-- ===== CATALOG SECTION ===== -->
 <section class="catalog-section">
     <div class="catalog-inner">
-        <!-- Catalog header -->
-        <div class="catalog-top">
-            <div>
-                <h2 class="catalog-title">CATÁLOGO DE PRODUCTOS</h2>
-                <p class="catalog-sub">
-                    @if (_productos == null)
-                    {
-                        <span>Cargando...</span>
-                    }
-                    else
-                    {
-                        <span>@_productos.Count productos disponibles</span>
-                    }
-                </p>
-            </div>
-            <div class="search-bar-wrapper">
-                <div class="search-bar">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#888" viewBox="0 0 24 24">
-                        <path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
-                    </svg>
-                    <input type="text"
-                           placeholder="Buscar productos..."
-                           @bind="_searchText"
-                           @bind:event="oninput" />
-                </div>
-                <button class="btn-refresh" @onclick="ResetSearch" title="Limpiar búsqueda">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
-                        <path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
-                    </svg>
-                </button>
-            </div>
-        </div>
-
-        <!-- Products grid -->
-        @if (_productos == null)
-        {
-            <div class="loading-container">
-                <div class="spinner"></div>
-                <p class="loading-text">Cargando productos...</p>
-            </div>
-        }
-        else if (!ProductosFiltrados.Any())
-        {
-            <div class="empty-state">
-                <span>😕</span>
-                <p>@(_searchText.Length > 0 ? "No se encontraron productos con ese término." : "No hay productos disponibles.")</p>
-            </div>
-        }
-        else
-        {
-            <div class="products-grid">
-                @foreach (var producto in ProductosFiltrados)
-                {
-                    var inCart = Cart.GetItems().Any(i => i.Producto.Id == producto.Id);
-
-                    <div class="product-card">
-                        <!-- Image -->
-                        <a href="/producto/@producto.Id" class="product-card-link">
-                            <div class="product-image-wrapper">
-                                @if (!string.IsNullOrEmpty(producto.Imagen1Url))
-                                {
-                                    <img src="@UrlHelpers.GetSafeImageUrl(producto.Imagen1Url)" class="product-main-image" alt="@producto.Nombre" />
-                                }
-                                else
-                                {
-                                    <div class="product-no-image">📦</div>
-                                }
-
-                                @if (producto.Stock <= 0)
-                                {
-                                    <div class="out-of-stock-overlay">Sin Stock</div>
-                                }
-
-                                @if (inCart)
-                                {
-                                    <div class="in-cart-badge">✓ En carrito</div>
-                                }
-                            </div>
-                        </a>
-
-                        <!-- Info -->
-                        <div class="product-info">
-                            <a href="/producto/@producto.Id" class="product-name-link">
-                                <h5 class="product-name" title="@producto.Nombre">@producto.Nombre</h5>
-                            </a>
-                            <div class="product-meta">
-                                <span class="product-price">@producto.Precio.ToString("C")</span>
-                                <span class="product-stock @(producto.Stock > 0 ? "stock-ok" : "stock-empty")">
-                                    Stock: @producto.Stock
-                                </span>
-                            </div>
-                            <button class="btn-add-cart @(producto.Stock <= 0 ? "btn-disabled" : "") @(inCart ? "btn-already-added" : "")"
-                                    @onclick="() => AddToCart(producto)"
-                                    disabled="@(producto.Stock <= 0)">
-                                @if (inCart)
-                                {
-                                    <span>🛒 Agregar más</span>
-                                }
-                                else if (producto.Stock <= 0)
-                                {
-                                    <span>❌ Sin Stock</span>
-                                }
-                                else
-                                {
-                                    <span>🛒 Agregar al carrito</span>
-                                }
-                            </button>
+        <div class="catalog-layout">
+            <!-- Main Content (Left) -->
+            <div class="catalog-main">
+                <!-- Catalog header -->
+                <div class="catalog-top">
+                    <div>
+                        <h2 class="catalog-title">
+                            @if (string.IsNullOrEmpty(_selectedCategory))
+                            {
+                                <span>CATÁLOGO COMPLETO</span>
+                            }
+                            else
+                            {
+                                <span>CATEGORÍA: @_selectedCategory.ToUpper()</span>
+                            }
+                        </h2>
+                        <p class="catalog-sub">
+                            @if (_productos == null)
+                            {
+                                <span>Cargando inventario...</span>
+                            }
+                            else
+                            {
+                                <span>Mostrando @ProductosFiltrados.Count() productos disponibles</span>
+                            }
+                        </p>
+                    </div>
+                    <div class="search-bar-wrapper">
+                        <div class="search-bar">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="#888" viewBox="0 0 24 24">
+                                <path d="M15.5 14h-.79l-.28-.27A6.47 6.47 0 0 0 16 9.5 6.5 6.5 0 1 0 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+                            </svg>
+                            <input type="text"
+                                   placeholder="Buscar productos..."
+                                   @bind="_searchText"
+                                   @bind:event="oninput" />
                         </div>
+                        <button class="btn-refresh" @onclick="ResetSearch" title="Limpiar búsqueda">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" viewBox="0 0 24 24">
+                                <path d="M17.65 6.35A7.958 7.958 0 0 0 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08A5.99 5.99 0 0 1 12 18c-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Products grouped by Category -->
+                @if (_productos == null)
+                {
+                    <div class="loading-container">
+                        <div class="spinner"></div>
+                        <p class="loading-text">Cargando catálogo premium...</p>
                     </div>
                 }
+                else if (!ProductosFiltrados.Any())
+                {
+                    <div class="empty-state">
+                        <span>😕</span>
+                        <p>No se encontraron productos en esta selección.</p>
+                        <button class="btn-add-cart" style="width:auto; padding: 0.5rem 2rem;" @onclick="ResetFilters">Ver todos los productos</button>
+                    </div>
+                }
+                else
+                {
+                    @foreach (var grupo in ProductosFiltrados.GroupBy(p => p.Categoria ?? "Sin Categoría"))
+                    {
+                        <div class="category-group">
+                            @if (string.IsNullOrEmpty(_selectedCategory))
+                            {
+                                <h3 class="category-group-title">@grupo.Key</h3>
+                            }
+                            <div class="products-grid">
+                                @foreach (var producto in grupo)
+                                {
+                                    var inCart = Cart.GetItems().Any(i => i.Producto.Id == producto.Id);
+
+                                    <div class="product-card">
+                                        <a href="/producto/@producto.Id" class="product-card-link">
+                                            <div class="product-image-wrapper">
+                                                @if (!string.IsNullOrEmpty(producto.Imagen1Url))
+                                                {
+                                                    <img src="@UrlHelpers.GetSafeImageUrl(producto.Imagen1Url, Http.BaseAddress.ToString())" class="product-main-image" alt="@producto.Nombre" />
+                                                }
+                                                else
+                                                {
+                                                    <div class="product-no-image">📦</div>
+                                                }
+
+                                                @if (!string.IsNullOrEmpty(producto.Categoria))
+                                                {
+                                                    <div class="product-cat-tag">@producto.Categoria</div>
+                                                }
+
+                                                @if (producto.Stock <= 0)
+                                                {
+                                                    <div class="out-of-stock-overlay">Sin Stock</div>
+                                                }
+
+                                                @if (inCart)
+                                                {
+                                                    <div class="in-cart-badge">✓ En carrito</div>
+                                                }
+                                            </div>
+                                        </a>
+
+                                        <div class="product-info">
+                                            <a href="/producto/@producto.Id" class="product-name-link">
+                                                <h5 class="product-name" title="@producto.Nombre">@producto.Nombre</h5>
+                                            </a>
+                                            <p class="product-short-desc">@(producto.Detalles?.Length > 80 ? producto.Detalles.Substring(0, 77) + "..." : producto.Detalles)</p>
+                                            <div class="product-meta">
+                                                <span class="product-price">@producto.Precio.ToString("C")</span>
+                                                <span class="product-stock @(producto.Stock > 0 ? "stock-ok" : "stock-empty")">
+                                                    Stock: @producto.Stock
+                                                </span>
+                                            </div>
+                                            <button class="btn-add-cart @(producto.Stock <= 0 ? "btn-disabled" : "") @(inCart ? "btn-already-added" : "")"
+                                                    @onclick="() => AddToCart(producto)"
+                                                    disabled="@(producto.Stock <= 0)">
+                                                @if (inCart)
+                                                {
+                                                    <span>🛒 Agregar más</span>
+                                                }
+                                                else if (producto.Stock <= 0)
+                                                {
+                                                    <span>❌ Sin Stock</span>
+                                                }
+                                                else
+                                                {
+                                                    <span>🛒 Agregar al carrito</span>
+                                                }
+                                            </button>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                }
             </div>
-        }
+
+            <!-- Sidebar (Right) -->
+            <aside class="catalog-sidebar">
+                <div class="sidebar-card">
+                    <h4 class="sidebar-title">CATEGORÍAS</h4>
+                    <div class="category-menu">
+                        <button class="category-item @(string.IsNullOrEmpty(_selectedCategory) ? "active" : "")" 
+                                @onclick="() => SelectCategory(null)">
+                            <span class="cat-dot"></span>
+                            Todas las Categorías
+                            <span class="cat-count">@(_productos?.Count ?? 0)</span>
+                        </button>
+                        
+                        @if (_productos != null)
+                        {
+                            @foreach (var cat in _productos.Where(p => !string.IsNullOrEmpty(p.Categoria)).Select(p => p.Categoria).Distinct().OrderBy(c => c))
+                            {
+                                var count = _productos.Count(p => p.Categoria == cat);
+                                <button class="category-item @(_selectedCategory == cat ? "active" : "")" 
+                                        @onclick="() => SelectCategory(cat)">
+                                    <span class="cat-dot"></span>
+                                    @cat
+                                    <span class="cat-count">@count</span>
+                                </button>
+                            }
+                        }
+                    </div>
+                </div>
+
+                <div class="sidebar-card promo-card">
+                    <h5>¿No encuentras lo que buscas?</h5>
+                    <p>Contáctanos para pedidos especiales de partes para tractocamión.</p>
+                    <a href="#" class="btn-contact">Hablar con un experto</a>
+                </div>
+            </aside>
+        </div>
     </div>
 </section>
+
+<style>
+    .catalog-layout {
+        display: grid;
+        grid-template-columns: 1fr 300px;
+        gap: 2.5rem;
+        align-items: start;
+    }
+
+    .catalog-main {
+        min-width: 0;
+    }
+
+    .category-group {
+        margin-bottom: 3rem;
+    }
+
+    .category-group-title {
+        color: var(--text-white);
+        font-size: 1.25rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        border-left: 4px solid var(--accent);
+        padding-left: 1rem;
+        margin-bottom: 1.5rem;
+        letter-spacing: 0.05em;
+    }
+
+    .product-short-desc {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        margin: -0.25rem 0 0.5rem;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .product-cat-tag {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: rgba(0,0,0,0.7);
+        backdrop-filter: blur(4px);
+        color: var(--accent);
+        font-size: 0.65rem;
+        font-weight: 800;
+        padding: 4px 8px;
+        border-radius: 4px;
+        text-transform: uppercase;
+        border: 1px solid rgba(255,107,0,0.3);
+    }
+
+    /* Sidebar Styles */
+    .catalog-sidebar {
+        position: sticky;
+        top: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .sidebar-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-lg);
+        padding: 1.5rem;
+        box-shadow: var(--shadow-card);
+    }
+
+    .sidebar-title {
+        color: var(--text-white);
+        font-size: 0.9rem;
+        font-weight: 900;
+        margin-bottom: 1.25rem;
+        letter-spacing: 0.1em;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .category-menu {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .category-item {
+        background: transparent;
+        border: 1px solid transparent;
+        color: var(--text-light);
+        text-align: left;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 0.88rem;
+        font-weight: 600;
+    }
+
+    .category-item:hover {
+        background: rgba(255, 255, 255, 0.03);
+        color: var(--text-white);
+    }
+
+    .category-item.active {
+        background: rgba(255, 107, 0, 0.1);
+        border-color: rgba(255, 107, 0, 0.2);
+        color: var(--accent);
+    }
+
+    .cat-dot {
+        width: 6px;
+        height: 6px;
+        background: var(--text-muted);
+        border-radius: 50%;
+        transition: all 0.2s;
+    }
+
+    .category-item.active .cat-dot {
+        background: var(--accent);
+        box-shadow: 0 0 8px var(--accent);
+    }
+
+    .cat-count {
+        margin-left: auto;
+        font-size: 0.7rem;
+        background: rgba(0,0,0,0.3);
+        padding: 2px 8px;
+        border-radius: 10px;
+        color: var(--text-muted);
+    }
+
+    .category-item.active .cat-count {
+        background: var(--accent);
+        color: white;
+    }
+
+    .promo-card {
+        background: linear-gradient(135deg, #1a1a1a 0%, #2a1200 100%);
+        border-color: rgba(255, 107, 0, 0.2);
+    }
+
+    .promo-card h5 {
+        color: var(--text-white);
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+    }
+
+    .promo-card p {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+        line-height: 1.5;
+        margin-bottom: 1.25rem;
+    }
+
+    .btn-contact {
+        display: block;
+        text-align: center;
+        background: transparent;
+        border: 1px solid var(--accent);
+        color: var(--accent);
+        padding: 0.6rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-size: 0.85rem;
+        font-weight: 700;
+        transition: all 0.2s;
+    }
+
+    .btn-contact:hover {
+        background: var(--accent);
+        color: white;
+    }
+
+    @@media (max-width: 1100px) {
+        .catalog-layout {
+            grid-template-columns: 1fr;
+        }
+        .catalog-sidebar {
+            order: -1;
+            position: static;
+        }
+        .category-menu {
+            flex-direction: row;
+            overflow-x: auto;
+            padding-bottom: 0.5rem;
+        }
+        .category-item {
+            white-space: nowrap;
+        }
+    }
+</style>
 
 @code {
     private List<ProductoDto>? _productos;
     private Dictionary<Guid, string> _activeImages = new();
     private Toast? _toast;
     private string _searchText = "";
+    private string? _selectedCategory;
 
     private IEnumerable<ProductoDto> ProductosFiltrados =>
         _productos == null ? Enumerable.Empty<ProductoDto>() :
-        string.IsNullOrWhiteSpace(_searchText) ? _productos :
-        _productos.Where(p => p.Nombre.Contains(_searchText, StringComparison.OrdinalIgnoreCase));
+        _productos.Where(p => 
+            (string.IsNullOrWhiteSpace(_searchText) || p.Nombre.Contains(_searchText, StringComparison.OrdinalIgnoreCase)) &&
+            (string.IsNullOrEmpty(_selectedCategory) || p.Categoria == _selectedCategory)
+        );
 
     protected override async Task OnInitializedAsync()
     {
@@ -207,7 +469,7 @@
             _productos = await Http.GetFromJsonAsync<List<ProductoDto>>("api/productos");
             if (_productos != null)
                 foreach (var p in _productos)
-                    _activeImages[p.Id] = UrlHelpers.GetSafeImageUrl(p.Imagen1Url);
+                    _activeImages[p.Id] = UrlHelpers.GetSafeImageUrl(p.Imagen1Url, Http.BaseAddress.ToString());
         }
         catch (Exception ex)
         {
@@ -216,7 +478,19 @@
         }
     }
 
+    private void SelectCategory(string? category)
+    {
+        _selectedCategory = category;
+        StateHasChanged();
+    }
+
     private void ResetSearch() => _searchText = "";
+    
+    private void ResetFilters()
+    {
+        _searchText = "";
+        _selectedCategory = null;
+    }
 
     private async Task AddToCart(ProductoDto producto)
     {

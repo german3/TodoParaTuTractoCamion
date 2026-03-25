@@ -29,21 +29,21 @@
                     <div class="detail-thumbnails mt-3">
                         @if (!string.IsNullOrEmpty(_producto.Imagen1Url))
                         {
-                            var img1 = UrlHelpers.GetSafeImageUrl(_producto.Imagen1Url);
+                            var img1 = UrlHelpers.GetSafeImageUrl(_producto.Imagen1Url, Http.BaseAddress.ToString());
                             <img src="@img1" 
                                  class="detail-thumb @(_activeImageUrl == img1 ? "active" : "")" 
                                  @onmouseover="() => _activeImageUrl = img1" />
                         }
                         @if (!string.IsNullOrEmpty(_producto.Imagen2Url))
                         {
-                            var img2 = UrlHelpers.GetSafeImageUrl(_producto.Imagen2Url);
+                            var img2 = UrlHelpers.GetSafeImageUrl(_producto.Imagen2Url, Http.BaseAddress.ToString());
                             <img src="@img2" 
                                  class="detail-thumb @(_activeImageUrl == img2 ? "active" : "")" 
                                  @onmouseover="() => _activeImageUrl = img2" />
                         }
                         @if (!string.IsNullOrEmpty(_producto.Imagen3Url))
                         {
-                            var img3 = UrlHelpers.GetSafeImageUrl(_producto.Imagen3Url);
+                            var img3 = UrlHelpers.GetSafeImageUrl(_producto.Imagen3Url, Http.BaseAddress.ToString());
                             <img src="@img3" 
                                  class="detail-thumb @(_activeImageUrl == img3 ? "active" : "")" 
                                  @onmouseover="() => _activeImageUrl = img3" />
@@ -112,7 +112,7 @@
             _producto = await Http.GetFromJsonAsync<ProductoDto>($"api/productos/{Id}");
             if (_producto != null)
             {
-                _activeImageUrl = UrlHelpers.GetSafeImageUrl(_producto.Imagen1Url);
+                _activeImageUrl = UrlHelpers.GetSafeImageUrl(_producto.Imagen1Url, Http.BaseAddress.ToString());
             }
         }
         catch (Exception ex)

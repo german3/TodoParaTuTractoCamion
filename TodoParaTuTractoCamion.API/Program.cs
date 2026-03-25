@@ -47,6 +47,7 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 app.UseAuthorization();
+app.UseStaticFiles();
 app.MapControllers();
 
 // Seed Logic
