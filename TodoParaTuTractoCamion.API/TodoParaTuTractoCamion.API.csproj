@@ -17,6 +17,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="..\productos_backup.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\TodoParaTuTractoCamion.Infrastructure\TodoParaTuTractoCamion.Infrastructure.csproj" />
   </ItemGroup>
 
