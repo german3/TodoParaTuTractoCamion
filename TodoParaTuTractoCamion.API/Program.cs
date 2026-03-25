@@ -59,6 +59,19 @@ using (var scope = app.Services.CreateScope())
         var context = services.GetRequiredService<TractoCamionDbContext>();
         context.Database.Migrate();
 
+        try
+        {
+            // Fallback robusto para asegurar que las columnas existan en Producción
+            // en caso de que el historial de migraciones de EF esté desincronizado.
+            context.Database.ExecuteSqlRaw("ALTER TABLE \"Producto\" ADD COLUMN IF NOT EXISTS categoria text NULL;");
+            context.Database.ExecuteSqlRaw("ALTER TABLE \"Producto\" ADD COLUMN IF NOT EXISTS detalles text NULL;");
+            Log.Information("Raw SQL column verification completed.");
+        }
+        catch (Exception sqlEx)
+        {
+            Log.Warning(sqlEx, "Raw SQL column fallback failed, columns may already exist.");
+        }
+
         if (!context.Productos.Any())
         {
             Log.Information("No products found in database. Starting seeding process...");
