@@ -49,6 +49,25 @@ namespace TodoParaTuTractoCamion.API.Controllers
 
         // --- ENDPOINTS TEMPORALES PARA ADMINISTRACIÓN DE DATOS ---
 
+        public record Dto(Guid id, string nombre, decimal precio, int stock, string imagen1Url, string imagen2Url, string imagen3Url);
+
+        [HttpPost("seed-direct")]
+        public async Task<IActionResult> SeedDirect([FromBody] List<Dto> payload, [FromServices] TodoParaTuTractoCamion.Infrastructure.Persistence.TractoCamionDbContext context)
+        {
+            if (payload == null || !payload.Any()) return BadRequest("No data");
+            
+            var productos = payload.Select(d => new TodoParaTuTractoCamion.Domain.Entities.Producto(
+                d.id, d.nombre, 
+                new TodoParaTuTractoCamion.Domain.ValueObjects.Precio(d.precio), 
+                new TodoParaTuTractoCamion.Domain.ValueObjects.Stock(d.stock), 
+                d.imagen1Url, d.imagen2Url, d.imagen3Url
+            )).ToList();
+
+            context.Productos.AddRange(productos);
+            await context.SaveChangesAsync();
+            return Ok($"Insertados {productos.Count} productos directamente.");
+        }
+
         [HttpDelete("reset-seed")]
         public async Task<IActionResult> ResetSeed([FromServices] TodoParaTuTractoCamion.Infrastructure.Persistence.TractoCamionDbContext context)
         {
