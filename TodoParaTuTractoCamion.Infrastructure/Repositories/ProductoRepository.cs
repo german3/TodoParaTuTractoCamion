@@ -21,7 +21,22 @@ namespace TodoParaTuTractoCamion.Infrastructure.Repositories
 
         public async Task<IEnumerable<Producto>> GetAllAsync()
         {
-            return await _context.Productos.ToListAsync();
+            try
+            {
+                return await _context.Productos.ToListAsync();
+            }
+            catch (Exception ex) when (ex.Message.Contains("does not exist"))
+            {
+                // Auto-healing para entornos de producción desincronizados
+                await _context.Database.ExecuteSqlRawAsync("ALTER TABLE \"Producto\" ADD COLUMN IF NOT EXISTS categoria text NULL;");
+                await _context.Database.ExecuteSqlRawAsync("ALTER TABLE \"Producto\" ADD COLUMN IF NOT EXISTS detalles text NULL;");
+                
+                // Intento seguro a tabla original si Producción aún usa la tabla pluralizada
+                try { await _context.Database.ExecuteSqlRawAsync("ALTER TABLE \"Productos\" ADD COLUMN IF NOT EXISTS categoria text NULL;"); } catch { }
+                try { await _context.Database.ExecuteSqlRawAsync("ALTER TABLE \"Productos\" ADD COLUMN IF NOT EXISTS detalles text NULL;"); } catch { }
+                
+                return await _context.Productos.ToListAsync();
+            }
         }
 
         public async Task AddAsync(Producto producto)
