@@ -1,0 +1,48 @@
+name: Deploy Blazor to GitHub Pages
+
+on:
+  push:
+    branches: [ master, main ]
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # Checkout the code
+    - uses: actions/checkout@v4
+
+    # Setup .NET SDK
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '10.0.x' # Verifica la version del proyecto local
+        # También compatible con 8.0 y 9.0
+
+    # Publish the Blazor WebAssembly project
+    - name: Publish Blazor
+      run: dotnet publish TodoParaTuTractoCamion.BlazorWasm/TodoParaTuTractoCamion.BlazorWasm.csproj -c Release -o release --nologo
+
+    # Workaround para GitHub Pages: cambiar base href al nombre del repo
+    # NOTA: Asegúrate de que el repositorio se llame "TodoParaTuTractoCamion" en GitHub
+    - name: Change base href in index.html
+      run: sed -i 's/<base href="\/" \/>/<base href="\/TodoParaTuTractoCamion\/" \/>/g' release/wwwroot/index.html
+
+    # Workaround para GitHub Pages: Rutas SPA
+    # Copia index.html a 404.html para que al recargar la página siga resolviendo Blazor
+    - name: copy index.html to 404.html
+      run: cp release/wwwroot/index.html release/wwwroot/404.html
+
+    # Workaround para GitHub Pages: Evitar que Jekyll ignore directorios con guión bajo (ej _framework)
+    - name: Add .nojekyll file
+      run: touch release/wwwroot/.nojekyll
+
+    # Desplegar a la rama gh-pages
+    - name: Commit and Push to gh-pages branch
+      uses: JamesIves/github-pages-deploy-action@v4
+      with:
+        branch: gh-pages
+        folder: release/wwwroot
