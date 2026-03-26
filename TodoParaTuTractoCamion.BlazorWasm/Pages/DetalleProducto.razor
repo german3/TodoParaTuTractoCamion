@@ -26,24 +26,24 @@
                         <img src="@_activeImageUrl" class="detail-main-image" alt="@_producto.Nombre" />
                     </div>
                     
-                    @if (!string.IsNullOrWhiteSpace(_producto.Imagen2Url) || !string.IsNullOrWhiteSpace(_producto.Imagen3Url))
+                    @if (IsImgValid(_producto.Imagen2Url) || IsImgValid(_producto.Imagen3Url))
                     {
                         <div class="detail-thumbnails mt-3">
-                            @if (!string.IsNullOrWhiteSpace(_producto.Imagen1Url))
+                            @if (IsImgValid(_producto.Imagen1Url))
                             {
                                 var img1 = UrlHelpers.GetSafeImageUrl(_producto.Imagen1Url, Http.BaseAddress.ToString());
                                 <img src="@img1" 
                                      class="detail-thumb @(_activeImageUrl == img1 ? "active" : "")" 
                                      @onmouseover="() => SetActiveImage(img1)" />
                             }
-                            @if (!string.IsNullOrWhiteSpace(_producto.Imagen2Url))
+                            @if (IsImgValid(_producto.Imagen2Url))
                             {
                                 var img2 = UrlHelpers.GetSafeImageUrl(_producto.Imagen2Url, Http.BaseAddress.ToString());
                                 <img src="@img2" 
                                      class="detail-thumb @(_activeImageUrl == img2 ? "active" : "")" 
                                      @onmouseover="() => SetActiveImage(img2)" />
                             }
-                            @if (!string.IsNullOrWhiteSpace(_producto.Imagen3Url))
+                            @if (IsImgValid(_producto.Imagen3Url))
                             {
                                 var img3 = UrlHelpers.GetSafeImageUrl(_producto.Imagen3Url, Http.BaseAddress.ToString());
                                 <img src="@img3" 
@@ -127,6 +127,17 @@
     private void SetActiveImage(string url)
     {
         _activeImageUrl = url;
+    }
+
+    private bool IsImgValid(string? url)
+    {
+        if (string.IsNullOrWhiteSpace(url)) return false;
+        
+        var u = url.Trim().ToLower();
+        // Ignorar placeholders comunes de Excel o Bases de datos
+        if (u == "-" || u == "n/a" || u == "null" || u == "none" || u == ".") return false;
+        
+        return true;
     }
 
     private void AdjustQty(int delta)
