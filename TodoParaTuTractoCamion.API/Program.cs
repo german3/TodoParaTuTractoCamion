@@ -99,7 +99,9 @@ using (var scope = app.Services.CreateScope())
                         new TodoParaTuTractoCamion.Domain.ValueObjects.Stock(d.Stock),
                         d.Imagen1Url,
                         d.Imagen2Url,
-                        d.Imagen3Url
+                        d.Imagen3Url,
+                        d.Detalles,
+                        d.Categoria
                     )).ToList();
 
                     context.Productos.AddRange(productos);
@@ -153,7 +155,9 @@ public record ProductoJsonDto(
     string Nombre,
     decimal Precio,
     int Stock,
-    string Imagen1Url,
-    string Imagen2Url,
-    string Imagen3Url
+    string? Imagen1Url,
+    string? Imagen2Url,
+    string? Imagen3Url,
+    string? Categoria = null,
+    string? Detalles = null
 );

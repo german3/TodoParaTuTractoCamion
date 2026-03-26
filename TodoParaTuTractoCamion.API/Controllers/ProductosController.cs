@@ -49,7 +49,7 @@ namespace TodoParaTuTractoCamion.API.Controllers
 
         // --- ENDPOINTS TEMPORALES PARA ADMINISTRACIÓN DE DATOS ---
 
-        public record Dto(Guid id, string nombre, decimal precio, int stock, string imagen1Url, string imagen2Url, string imagen3Url);
+        public record Dto(Guid id, string nombre, decimal precio, int stock, string? imagen1Url, string? imagen2Url, string? imagen3Url, string? categoria = null, string? detalles = null);
 
         [HttpPost("seed-direct")]
         public async Task<IActionResult> SeedDirect([FromBody] List<Dto> payload, [FromServices] TodoParaTuTractoCamion.Infrastructure.Persistence.TractoCamionDbContext context)
@@ -60,7 +60,8 @@ namespace TodoParaTuTractoCamion.API.Controllers
                 d.id, d.nombre, 
                 new TodoParaTuTractoCamion.Domain.ValueObjects.Precio(d.precio), 
                 new TodoParaTuTractoCamion.Domain.ValueObjects.Stock(d.stock), 
-                d.imagen1Url, d.imagen2Url, d.imagen3Url
+                d.imagen1Url, d.imagen2Url, d.imagen3Url,
+                d.detalles, d.categoria
             )).ToList();
 
             context.Productos.AddRange(productos);
