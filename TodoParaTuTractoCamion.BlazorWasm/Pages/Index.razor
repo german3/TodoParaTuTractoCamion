@@ -149,7 +149,7 @@
                                     var inCart = Cart.GetItems().Any(i => i.Producto.Id == producto.Id);
 
                                     <div class="product-card">
-                                        <a href="/producto/@producto.Id" class="product-card-link">
+                                        <a href="producto/@producto.Id" class="product-card-link">
                                             <div class="product-image-wrapper">
                                                 @if (!string.IsNullOrEmpty(producto.Imagen1Url))
                                                 {
@@ -178,7 +178,7 @@
                                         </a>
 
                                         <div class="product-info">
-                                            <a href="/producto/@producto.Id" class="product-name-link">
+                                            <a href="producto/@producto.Id" class="product-name-link">
                                                 <h5 class="product-name" title="@producto.Nombre">@producto.Nombre</h5>
                                             </a>
                                             <p class="product-short-desc">@(producto.Detalles?.Length > 80 ? producto.Detalles.Substring(0, 77) + "..." : producto.Detalles)</p>

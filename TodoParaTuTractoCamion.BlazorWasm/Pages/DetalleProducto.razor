@@ -32,21 +32,21 @@
                             var img1 = UrlHelpers.GetSafeImageUrl(_producto.Imagen1Url, Http.BaseAddress.ToString());
                             <img src="@img1" 
                                  class="detail-thumb @(_activeImageUrl == img1 ? "active" : "")" 
-                                 @onmouseover="() => _activeImageUrl = img1" />
+                                 @onmouseover="() => SetActiveImage(img1)" />
                         }
                         @if (!string.IsNullOrEmpty(_producto.Imagen2Url))
                         {
                             var img2 = UrlHelpers.GetSafeImageUrl(_producto.Imagen2Url, Http.BaseAddress.ToString());
                             <img src="@img2" 
                                  class="detail-thumb @(_activeImageUrl == img2 ? "active" : "")" 
-                                 @onmouseover="() => _activeImageUrl = img2" />
+                                 @onmouseover="() => SetActiveImage(img2)" />
                         }
                         @if (!string.IsNullOrEmpty(_producto.Imagen3Url))
                         {
                             var img3 = UrlHelpers.GetSafeImageUrl(_producto.Imagen3Url, Http.BaseAddress.ToString());
                             <img src="@img3" 
                                  class="detail-thumb @(_activeImageUrl == img3 ? "active" : "")" 
-                                 @onmouseover="() => _activeImageUrl = img3" />
+                                 @onmouseover="() => SetActiveImage(img3)" />
                         }
                     </div>
                 </div>
@@ -55,7 +55,7 @@
             <!-- Info Column -->
             <div class="col-md-6 mb-4">
                 <div class="detail-info-card">
-                    <a href="/" class="btn-back mb-3">← Atrás al Catálogo</a>
+                    <a href="" class="btn-back mb-3">← Atrás al Catálogo</a>
                     <h1 class="detail-name">@_producto.Nombre</h1>
                     <p class="detail-id text-muted">SKU: @_producto.Id</p>
                     <hr />
@@ -119,6 +119,11 @@
         {
             Console.WriteLine(ex.Message);
         }
+    }
+
+    private void SetActiveImage(string url)
+    {
+        _activeImageUrl = url;
     }
 
     private void AdjustQty(int delta)
