@@ -26,29 +26,32 @@
                         <img src="@_activeImageUrl" class="detail-main-image" alt="@_producto.Nombre" />
                     </div>
                     
-                    <div class="detail-thumbnails mt-3">
-                        @if (!string.IsNullOrEmpty(_producto.Imagen1Url))
-                        {
-                            var img1 = UrlHelpers.GetSafeImageUrl(_producto.Imagen1Url, Http.BaseAddress.ToString());
-                            <img src="@img1" 
-                                 class="detail-thumb @(_activeImageUrl == img1 ? "active" : "")" 
-                                 @onmouseover="() => SetActiveImage(img1)" />
-                        }
-                        @if (!string.IsNullOrEmpty(_producto.Imagen2Url))
-                        {
-                            var img2 = UrlHelpers.GetSafeImageUrl(_producto.Imagen2Url, Http.BaseAddress.ToString());
-                            <img src="@img2" 
-                                 class="detail-thumb @(_activeImageUrl == img2 ? "active" : "")" 
-                                 @onmouseover="() => SetActiveImage(img2)" />
-                        }
-                        @if (!string.IsNullOrEmpty(_producto.Imagen3Url))
-                        {
-                            var img3 = UrlHelpers.GetSafeImageUrl(_producto.Imagen3Url, Http.BaseAddress.ToString());
-                            <img src="@img3" 
-                                 class="detail-thumb @(_activeImageUrl == img3 ? "active" : "")" 
-                                 @onmouseover="() => SetActiveImage(img3)" />
-                        }
-                    </div>
+                    @if (!string.IsNullOrWhiteSpace(_producto.Imagen2Url) || !string.IsNullOrWhiteSpace(_producto.Imagen3Url))
+                    {
+                        <div class="detail-thumbnails mt-3">
+                            @if (!string.IsNullOrWhiteSpace(_producto.Imagen1Url))
+                            {
+                                var img1 = UrlHelpers.GetSafeImageUrl(_producto.Imagen1Url, Http.BaseAddress.ToString());
+                                <img src="@img1" 
+                                     class="detail-thumb @(_activeImageUrl == img1 ? "active" : "")" 
+                                     @onmouseover="() => SetActiveImage(img1)" />
+                            }
+                            @if (!string.IsNullOrWhiteSpace(_producto.Imagen2Url))
+                            {
+                                var img2 = UrlHelpers.GetSafeImageUrl(_producto.Imagen2Url, Http.BaseAddress.ToString());
+                                <img src="@img2" 
+                                     class="detail-thumb @(_activeImageUrl == img2 ? "active" : "")" 
+                                     @onmouseover="() => SetActiveImage(img2)" />
+                            }
+                            @if (!string.IsNullOrWhiteSpace(_producto.Imagen3Url))
+                            {
+                                var img3 = UrlHelpers.GetSafeImageUrl(_producto.Imagen3Url, Http.BaseAddress.ToString());
+                                <img src="@img3" 
+                                     class="detail-thumb @(_activeImageUrl == img3 ? "active" : "")" 
+                                     @onmouseover="() => SetActiveImage(img3)" />
+                            }
+                        </div>
+                    }
                 </div>
             </div>
 
@@ -62,7 +65,7 @@
                     
                     <div class="detail-price-box">
                         <div class="detail-price-info">
-                            <span class="detail-price">@(_producto.Precio * _cantidad).ToString("C")</span>
+                            <span class="detail-price">@((_producto.Precio * _cantidad).ToString("C"))</span>
                             @if (_cantidad > 1)
                             {
                                 <small class="text-muted d-block">(@_producto.Precio.ToString("C") c/u)</small>
