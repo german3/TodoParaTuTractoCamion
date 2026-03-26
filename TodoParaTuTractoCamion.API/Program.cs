@@ -41,10 +41,10 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseHttpsRedirection();
 }
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
-app.UseHttpsRedirection();
 app.UseCors("AllowAll");
 app.UseAuthorization();
 app.UseStaticFiles();
@@ -147,7 +147,8 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-app.Run();
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+app.Run($"http://0.0.0.0:{port}");
 
 // DTO para carga de datos inicial
 public record ProductoJsonDto(
