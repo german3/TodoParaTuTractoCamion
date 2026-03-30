@@ -36,22 +36,22 @@
    GLOBAL TOKENS
    ============================================================ */
 :root {
-    --bg-darkest: #0d0d0d;
-    --bg-dark: #111111;
-    --bg-card: #1a1a1a;
-    --bg-card-hover: #222222;
-    --border: #2a2a2a;
-    --border-hover: #3a3a3a;
-    --accent: #FF6B00;
-    --accent-hover: #ff8533;
+    --bg-darkest: #040914;
+    --bg-dark: #081225;
+    --bg-card: #0f1c36;
+    --bg-card-hover: #15264a;
+    --border: #1e3663;
+    --border-hover: #294782;
+    --accent: #ff4d00;
+    --accent-hover: #ff7233;
     --success: #22c55e;
     --danger: #ef4444;
     --warning: #f59e0b;
     --text-white: #ffffff;
-    --text-light: #cccccc;
-    --text-muted: #888888;
-    --shadow-card: 0 4px 24px rgba(0, 0, 0, 0.5);
-    --shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.7);
+    --text-light: #e0e8f5;
+    --text-muted: #8a9fc4;
+    --shadow-card: 0 4px 24px rgba(0, 5, 15, 0.5);
+    --shadow-hover: 0 8px 32px rgba(255, 77, 0, 0.25);
     --radius: 12px;
     --radius-lg: 16px;
 }
@@ -79,7 +79,7 @@ body {
    ============================================================ */
 .hero-section {
     position: relative;
-    background: linear-gradient(135deg, #0a0a0a 0%, #1a0800 50%, #0a0a0a 100%);
+    background: linear-gradient(135deg, #040914 0%, #0a2052 50%, #040914 100%);
     padding: 5rem 2rem 4rem;
     overflow: hidden;
     min-height: 420px;
@@ -92,8 +92,8 @@ body {
     position: absolute;
     inset: 0;
     background:
-        radial-gradient(ellipse at 70% 50%, rgba(255, 107, 0, 0.08) 0%, transparent 60%),
-        radial-gradient(ellipse at 30% 80%, rgba(255, 107, 0, 0.05) 0%, transparent 50%);
+        radial-gradient(ellipse at 70% 50%, rgba(255, 77, 0, 0.15) 0%, transparent 60%),
+        radial-gradient(ellipse at 30% 80%, rgba(10, 66, 202, 0.15) 0%, transparent 50%);
     pointer-events: none;
 }
 
