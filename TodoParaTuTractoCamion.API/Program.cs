@@ -5,9 +5,6 @@ using TodoParaTuTractoCamion.Infrastructure.Persistence;
 using TodoParaTuTractoCamion.Infrastructure.Services;
 using TodoParaTuTractoCamion.API.Middleware;
 using Microsoft.EntityFrameworkCore;
-using System.Linq;
-using System.IO;
-using System.Collections.Generic;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -38,7 +35,11 @@ var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 app.UseSwagger();
-app.UseSwaggerUI();
+app.UseSwaggerUI(c =>
+{
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "TodoParaTuTractoCamion API v1");
+    c.RoutePrefix = string.Empty; // Set Swagger UI at apps root
+});
 
 if (app.Environment.IsDevelopment())
 {
@@ -148,9 +149,15 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-var port = Environment.GetEnvironmentVariable("PORT") ?? "7045";
-//app.Run($"http://0.0.0.0:{port}");
-app.Run($"http://localhost:{port}");        
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrEmpty(port))
+{
+    app.Run($"http://0.0.0.0:{port}");
+}
+else
+{
+    app.Run();
+}        
 // DTO para carga de datos inicial
 public record ProductoJsonDto(
     Guid Id,
